@@ -40,5 +40,6 @@ jobs:
         run: |
           IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
           docker build --build-arg VLLM_VERSION="$VLLM_VERSION" -t "$IMAGE:$VLLM_VERSION" .
-          docker run --rm --entrypoint /usr/sbin/sshd "$IMAGE:$VLLM_VERSION" -V 2>&1 | head -1
+          # Fails the job if sshd did not make it into the image.
+          docker run --rm --entrypoint /bin/sh "$IMAGE:$VLLM_VERSION" -c 'test -x /usr/sbin/sshd && ssh -V 2>&1'
           docker push "$IMAGE:$VLLM_VERSION"
